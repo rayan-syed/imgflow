@@ -1,5 +1,4 @@
-from src.events.events import make_event
-from src.events.topics import INFERENCE_COMPLETED, ANNOTATION_STORED
+from src.events.topics import INFERENCE_COMPLETED
 from src.broker.redis_broker import RedisBroker
 from src.stores.document_store import DocumentStore
 from src.stores.vector_store import VectorStore
@@ -33,15 +32,6 @@ class StorageService:
 
         self.document_store.save_annotation(image_id, document)
         self.vector_store.save_embedding(image_id, payload["embedding"])
-
-        out_event = make_event(
-            ANNOTATION_STORED,
-            {
-                "image_id": image_id,
-                "status": "stored",
-            },
-        )
-        self.broker.publish(ANNOTATION_STORED, out_event)
 
     def start(self):
         self.broker.subscribe(INFERENCE_COMPLETED,
