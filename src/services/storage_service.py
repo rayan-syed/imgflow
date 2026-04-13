@@ -38,7 +38,6 @@ class StorageService:
         self.vector_store.save_embedding(image_id, payload["embedding"])
         print(f"[StorageService] Stored embedding for {image_id}")
 
-
     def start(self):
         print(f"[StorageService] Listening on topic: {INFERENCE_COMPLETED}")
         self.broker.subscribe(INFERENCE_COMPLETED,
