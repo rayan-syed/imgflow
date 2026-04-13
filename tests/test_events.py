@@ -1,18 +1,19 @@
 from src.events.events import make_event, validate_event
+from src.events.topics import IMAGE_SUBMITTED
 
 
 def test_make_event():
-    event = make_event("image.submitted", {"x": 1})
+    event = make_event(IMAGE_SUBMITTED, {"x": 1})
 
     assert "event_id" in event
-    assert event["topic"] == "image.submitted"
+    assert event["topic"] == IMAGE_SUBMITTED
     assert validate_event(event) is True
 
 
 def test_validate_event_missing_payload():
     bad_event = {
         "event_id": "evt_123",
-        "topic": "image.submited",
+        "topic": IMAGE_SUBMITTED,
         "timestamp": "2026-04-13T12:00:00Z",
     }
 
@@ -26,7 +27,7 @@ def test_validate_event_missing_payload():
 def test_validate_event_payload_dict():
     bad_event = {
         "event_id": "evt_123",
-        "topic": "image.submitted",
+        "topic": IMAGE_SUBMITTED,
         "timestamp": "2026-04-13T12:00:00Z",
         "payload": "not_a_dict",
     }
