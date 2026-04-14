@@ -1,8 +1,13 @@
+import warnings
 from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
+from transformers.utils import logging as hf_logging
 
 from src.inference.labels import LABELS
+
+warnings.filterwarnings("ignore")
+hf_logging.set_verbosity_error()
 
 
 class InferenceBackend:
@@ -11,14 +16,21 @@ class InferenceBackend:
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.top_k = top_k
 
+        print(f"[InferenceBackend] Loading model: {model_name}")
+        print(f"[InferenceBackend] Using device: {self.device}")
+
         self.labels = LABELS
         self.processor = CLIPProcessor.from_pretrained(model_name)
         self.model = CLIPModel.from_pretrained(model_name).to(self.device)
         self.model.eval()
 
+        print(f"[InferenceBackend] Model loaded successfully")
+
     def run(self, image_path):
+        print(f"[InferenceBackend] Opening image: {image_path}")
         image = Image.open(image_path).convert("RGB")
 
+        print(f"[InferenceBackend] Preparing CLIP inputs")
         inputs = self.processor(
             text=self.labels,
             images=image,
@@ -27,6 +39,7 @@ class InferenceBackend:
         )
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
+        print(f"[InferenceBackend] Running model inference")
         with torch.no_grad():
             outputs = self.model(**inputs)
 
@@ -45,6 +58,8 @@ class InferenceBackend:
             {"label": label, "score": float(score)}
             for label, score in scored[: self.top_k]
         ]
+
+        print(f"[InferenceBackend] Top tags: {top_tags}")
 
         return {
             "tags": top_tags,
