@@ -47,7 +47,7 @@ class InferenceBackend:
         with torch.no_grad():
             image_features = self.model.get_image_features(**inputs)
 
-        return self._normalize_embedding(image_features)
+        return self._normalize_embedding(image_features.pooler_output)
 
     def encode_text(self, text):
         print(f"[InferenceBackend] Encoding query text: {text}")
@@ -62,7 +62,7 @@ class InferenceBackend:
         with torch.no_grad():
             text_features = self.model.get_text_features(**inputs)
 
-        return self._normalize_embedding(text_features)
+        return self._normalize_embedding(text_features.pooler_output)
 
     def run(self, image_path):
         image = Image.open(image_path).convert("RGB")
