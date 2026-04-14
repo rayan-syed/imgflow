@@ -5,3 +5,4 @@ redis
 torch
 transformers
 pillow
+faiss-cpu
