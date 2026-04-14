@@ -17,7 +17,7 @@ The system is built around asynchronous microservice-style components communicat
 ## System Design
 
 <p align="center">
-  <img src="docs/architecture.png" alt="System Architecture" width="700"/>
+  <img src="docs/architecture.png" alt="System Architecture" width="600"/>
 </p>
 
 The system is organized as an event-driven pipeline.
