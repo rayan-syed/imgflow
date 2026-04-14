@@ -13,6 +13,14 @@ class QueryService:
         self.vector_store = vector_store or VectorStore()
         self.backend = backend or InferenceBackend()
 
+    def reload_stores(self):
+        self.document_store = DocumentStore(filepath=self.document_store.filepath)
+        self.vector_store = VectorStore(
+            dim=self.vector_store.dim,
+            index_path=self.vector_store.index_path,
+            ids_path=self.vector_store.ids_path,
+        )
+
     def handle_query_submitted(self, event):
         try:
             payload = event["payload"]
@@ -27,10 +35,11 @@ class QueryService:
             top_k = payload["top_k"]
 
             print(f"[QueryService] Received query.submitted for {query_id}")
-            print(f"[QueryService] Encoding query text: {query_text}")
+
+            # Reload latest persisted state before searching
+            self.reload_stores()
 
             query_embedding = self.backend.encode_text(query_text)
-
             matches = self.vector_store.search(query_embedding, top_k)
 
             results = []
@@ -51,7 +60,6 @@ class QueryService:
             )
 
             self.broker.publish(QUERY_COMPLETED, out_event)
-
             print(f"[QueryService] Published {QUERY_COMPLETED}")
 
         except Exception as e:
