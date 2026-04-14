@@ -15,7 +15,7 @@ class StorageService:
             payload = event["payload"]
 
             required_keys = ["image_id", "image_path",
-                            "tags", "embedding", "model_name"]
+                             "tags", "embedding", "model_name"]
             for key in required_keys:
                 if key not in payload:
                     raise ValueError(
@@ -38,7 +38,7 @@ class StorageService:
 
             self.vector_store.save_embedding(image_id, payload["embedding"])
             print(f"[StorageService] Stored embedding for {image_id}")
-        
+
         except Exception as e:
             print(f"[StorageService] Error processing event: {e}")
 

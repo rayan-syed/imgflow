@@ -37,7 +37,7 @@ class InferenceService:
 
             print(
                 f"[InferenceService] Published {INFERENCE_COMPLETED} for {payload['image_id']}")
-        
+
         except Exception as e:
             print(f"[InferenceService] Error processing event: {e}")
 
