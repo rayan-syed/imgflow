@@ -9,6 +9,7 @@ from src.events.topics import (
     ANNOTATION_STORED,
     EMBEDDING_STORED,
     QUERY_COMPLETED,
+    PROCESSING_FAILED,
 )
 
 
@@ -25,7 +26,7 @@ class CLI:
 
     def wait_for_upload_events(self, image_id):
         pubsub = self.broker.client.pubsub()
-        pubsub.subscribe(ANNOTATION_STORED, EMBEDDING_STORED)
+        pubsub.subscribe(ANNOTATION_STORED, EMBEDDING_STORED, PROCESSING_FAILED)
 
         annotation_seen = False
         embedding_seen = False
@@ -38,6 +39,13 @@ class CLI:
                 event = json.loads(message["data"])
                 topic = event["topic"]
                 payload = event["payload"]
+
+                if topic == PROCESSING_FAILED and payload.get("image_id") == image_id:
+                    print(f"\nUpload failed for image: {image_id}")
+                    print(f"Service: {payload.get('service')}")
+                    print(f"Operation: {payload.get('operation')}")
+                    print(f"Error: {payload.get('error')}")
+                    break
 
                 if payload.get("image_id") != image_id:
                     continue
@@ -59,7 +67,7 @@ class CLI:
 
     def wait_for_query_completed(self, query_id):
         pubsub = self.broker.client.pubsub()
-        pubsub.subscribe(QUERY_COMPLETED)
+        pubsub.subscribe(QUERY_COMPLETED, PROCESSING_FAILED)
 
         try:
             for message in pubsub.listen():
@@ -67,7 +75,18 @@ class CLI:
                     continue
 
                 event = json.loads(message["data"])
+                topic = event["topic"]
                 payload = event["payload"]
+
+                if topic == PROCESSING_FAILED and payload.get("query_id") == query_id:
+                    print(f"\nQuery failed: {query_id}")
+                    print(f"Service: {payload.get('service')}")
+                    print(f"Operation: {payload.get('operation')}")
+                    print(f"Error: {payload.get('error')}")
+                    break
+
+                if topic != QUERY_COMPLETED:
+                    continue
 
                 if payload.get("query_id") != query_id:
                     continue

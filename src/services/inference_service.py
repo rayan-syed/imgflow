@@ -1,5 +1,5 @@
 from src.events.events import make_event
-from src.events.topics import IMAGE_SUBMITTED, INFERENCE_COMPLETED
+from src.events.topics import IMAGE_SUBMITTED, INFERENCE_COMPLETED, PROCESSING_FAILED
 from src.broker.redis_broker import RedisBroker
 from src.inference.backend import InferenceBackend
 
@@ -40,6 +40,16 @@ class InferenceService:
 
         except Exception as e:
             print(f"[InferenceService] Error processing event: {e}")
+            error_event = make_event(
+                PROCESSING_FAILED,
+                {
+                    "service": "InferenceService",
+                    "operation": "image_inference",
+                    "image_id": payload.get("image_id"),
+                    "error": str(e),
+                },
+            )
+            self.broker.publish(PROCESSING_FAILED, error_event)
 
     def start(self):
         print(f"[InferenceService] Listening on topic: {IMAGE_SUBMITTED}")

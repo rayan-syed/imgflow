@@ -4,6 +4,7 @@ ANNOTATION_STORED = "annotation.stored"
 EMBEDDING_STORED = "embedding.stored"
 QUERY_SUBMITTED = "query.submitted"
 QUERY_COMPLETED = "query.completed"
+PROCESSING_FAILED = "processing.failed"
 
 VALID_TOPICS = {
     IMAGE_SUBMITTED,
@@ -12,4 +13,5 @@ VALID_TOPICS = {
     EMBEDDING_STORED,
     QUERY_SUBMITTED,
     QUERY_COMPLETED,
+    PROCESSING_FAILED,
 }

@@ -1,5 +1,5 @@
 from src.events.events import make_event
-from src.events.topics import QUERY_SUBMITTED, QUERY_COMPLETED
+from src.events.topics import QUERY_SUBMITTED, QUERY_COMPLETED, PROCESSING_FAILED
 from src.services.query_service import QueryService
 from src.stores.document_store import DocumentStore
 from src.stores.vector_store import VectorStore
@@ -122,4 +122,5 @@ def test_query_service_rejects_missing_query_text(tmp_path):
 
     service.handle_query_submitted(bad_event)
 
-    assert len(broker.published) == 0
+    assert len(broker.published) == 1
+    assert broker.published[0][0] == PROCESSING_FAILED

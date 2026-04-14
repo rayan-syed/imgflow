@@ -1,5 +1,5 @@
 from src.events.events import make_event
-from src.events.topics import IMAGE_SUBMITTED, INFERENCE_COMPLETED
+from src.events.topics import IMAGE_SUBMITTED, INFERENCE_COMPLETED, PROCESSING_FAILED
 from src.services.inference_service import InferenceService
 
 
@@ -60,4 +60,5 @@ def test_inference_service_rejects_missing_image_path():
     )
 
     service.handle_image_submitted(bad_event)
-    assert len(broker.published) == 0
+    assert len(broker.published) == 1
+    assert broker.published[0][0] == PROCESSING_FAILED

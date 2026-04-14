@@ -1,5 +1,5 @@
 from src.events.events import make_event
-from src.events.topics import QUERY_SUBMITTED, QUERY_COMPLETED
+from src.events.topics import QUERY_SUBMITTED, QUERY_COMPLETED, PROCESSING_FAILED
 from src.broker.redis_broker import RedisBroker
 from src.stores.document_store import DocumentStore
 from src.stores.vector_store import VectorStore
@@ -64,6 +64,16 @@ class QueryService:
 
         except Exception as e:
             print(f"[QueryService] Error: {e}")
+            error_event = make_event(
+                PROCESSING_FAILED,
+                {
+                    "service": "QueryService",
+                    "operation": "query_retrieval",
+                    "query_id": payload.get("query_id"),
+                    "error": str(e),
+                },
+            )
+            self.broker.publish(PROCESSING_FAILED, error_event)
 
     def start(self):
         print(f"[QueryService] Listening on topic: {QUERY_SUBMITTED}")

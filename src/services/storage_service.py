@@ -3,6 +3,7 @@ from src.events.topics import (
     INFERENCE_COMPLETED,
     ANNOTATION_STORED,
     EMBEDDING_STORED,
+    PROCESSING_FAILED
 )
 from src.broker.redis_broker import RedisBroker
 from src.stores.document_store import DocumentStore
@@ -66,6 +67,17 @@ class StorageService:
 
         except Exception as e:
             print(f"[StorageService] Error processing event: {e}")
+
+            error_event = make_event(
+                PROCESSING_FAILED,
+                {
+                    "service": "StorageService",
+                    "operation": "store_annotation_and_embedding",
+                    "image_id": payload.get("image_id"),
+                    "error": str(e),
+                },
+            )
+            self.broker.publish(PROCESSING_FAILED, error_event)
 
     def start(self):
         print(f"[StorageService] Listening on topic: {INFERENCE_COMPLETED}")

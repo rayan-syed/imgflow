@@ -3,6 +3,7 @@ from src.events.topics import (
     INFERENCE_COMPLETED,
     ANNOTATION_STORED,
     EMBEDDING_STORED,
+    PROCESSING_FAILED
 )
 from src.services.storage_service import StorageService
 from src.stores.document_store import DocumentStore
@@ -105,4 +106,5 @@ def test_storage_service_rejects_missing_embedding(tmp_path):
 
     assert document_store.has_image("img_001") is False
     assert vector_store.has_image("img_001") is False
-    assert len(broker.published) == 0
+    assert len(broker.published) == 1
+    assert broker.published[0][0] == PROCESSING_FAILED
