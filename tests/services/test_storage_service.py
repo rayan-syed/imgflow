@@ -1,5 +1,9 @@
 from src.events.events import make_event
-from src.events.topics import INFERENCE_COMPLETED
+from src.events.topics import (
+    INFERENCE_COMPLETED,
+    ANNOTATION_STORED,
+    EMBEDDING_STORED,
+)
 from src.services.storage_service import StorageService
 from src.stores.document_store import DocumentStore
 from src.stores.vector_store import VectorStore
@@ -47,11 +51,24 @@ def test_storage_service_stores_outputs():
     assert len(results) == 1
     assert results[0][0] == "img_001"
 
+    assert len(broker.published) == 2
+
+    topic1, event1 = broker.published[0]
+    topic2, event2 = broker.published[1]
+
+    assert topic1 == ANNOTATION_STORED
+    assert event1["topic"] == ANNOTATION_STORED
+    assert event1["payload"]["image_id"] == "img_001"
+
+    assert topic2 == EMBEDDING_STORED
+    assert event2["topic"] == EMBEDDING_STORED
+    assert event2["payload"]["image_id"] == "img_001"
+
 
 def test_storage_service_rejects_missing_embedding():
     broker = FakeBroker()
     document_store = DocumentStore()
-    vector_store = VectorStore()
+    vector_store = VectorStore(dim=3)
 
     service = StorageService(
         broker,
